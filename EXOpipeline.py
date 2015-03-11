@@ -121,6 +121,8 @@ class EXOpipeline(BASE_CLASS, UI_OBJECT):
         self.btn_showlookdevshots.clicked.connect(self.view_shots_lookdev)
         self.btn_showother.clicked.connect(self.view_other)
 
+        self.btn_refresh.clicked.connect(self.synchronise_database)
+
         self.btn_newasset.clicked.connect(self.create_asset)
         self.btn_newshot.clicked.connect(self.create_shot)
         self.btn_newother.clicked.connect(self.hello_world)
@@ -156,7 +158,7 @@ class EXOpipeline(BASE_CLASS, UI_OBJECT):
 
         # SHOW
         self.show()
-        self.set_project("Z:\Bestanden\Dropbox\SCRIPTBOX\EXO Project")
+        self.set_project(r"Z:\Bestanden\Dropbox\__GROEPSPROJECT_14_15\02_Production\_EXOP")
         self.disable_set_buttons()
 
     def disable_set_buttons(self):
@@ -181,6 +183,13 @@ class EXOpipeline(BASE_CLASS, UI_OBJECT):
 
     def hello_world(self):
         print "Hello world!"
+
+    def synchronise_database(self):
+        """
+        Helper function to fix de-synchronisation errors with the database.
+        :return:
+        """
+        self.PROJECT.data = self.PROJECT.get_pipeline_data()
 
     def set_project(self, path=None):
         """
@@ -238,6 +247,7 @@ class EXOpipeline(BASE_CLASS, UI_OBJECT):
         return foldername
 
     def create_asset(self):
+        self.synchronise_database()
         assetname = self.input_assetname.text()
 
         if not assetname:
@@ -258,6 +268,7 @@ class EXOpipeline(BASE_CLASS, UI_OBJECT):
         self.view_assets()
 
     def create_shot(self):
+        self.synchronise_database()
         shotnumber = self.make_three_digit_string(int(self.input_shotnumber.text()))
         shotname = self.input_shotname.text()
         totalshotname = "shot_" + shotnumber + "_" + shotname
@@ -282,6 +293,7 @@ class EXOpipeline(BASE_CLASS, UI_OBJECT):
         self.view_shots()
 
     def create_other(self):
+        self.synchronise_database()
         othername = self.input_othername.text()
 
         if not othername:
@@ -326,26 +338,31 @@ class EXOpipeline(BASE_CLASS, UI_OBJECT):
                 self.combobox_versions.insertItem(i, str(i))
 
     def view_assets(self):
+        self.synchronise_database()
         self.currentlistsection = "assets"
         self.devtype = "dev"
         self.update_list_content("assets")
 
     def view_assets_lookdev(self):
+        self.synchronise_database()
         self.currentlistsection = "assets"
         self.devtype = "lookdev"
         self.update_list_content("assets")
 
     def view_shots(self):
+        self.synchronise_database()
         self.currentlistsection = "shots"
         self.devtype = "dev"
         self.update_list_content("shots")
 
     def view_shots_lookdev(self):
+        self.synchronise_database()
         self.currentlistsection = "shots"
         self.devtype = "lookdev"
         self.update_list_content("shots")
 
     def view_other(self):
+        self.synchronise_database()
         self.currentlistsection = "other"
         self.devtype = "dev"
         self.update_list_content("other")
@@ -449,6 +466,8 @@ class EXOpipeline(BASE_CLASS, UI_OBJECT):
     def open_asset_dir(self):
         path = ""
 
+        self.synchronise_database()
+
         selected = self.list_content.currentItem()
         if not selected:
             raise RuntimeError("No item selected!")
@@ -515,6 +534,7 @@ class EXOpipeline(BASE_CLASS, UI_OBJECT):
         return filepath
 
     def open_selected(self):
+        self.synchronise_database()
         selected = self.list_content.currentItem().text()
         if not selected:
             raise RuntimeError("No item selected!")
@@ -613,6 +633,8 @@ class EXOpipeline(BASE_CLASS, UI_OBJECT):
         if not self.devtype:
             raise RuntimeError("No list selected yet!")
 
+        self.synchronise_database()
+
         if self.devtype == "dev":
             self.activeasset.devversions += 1
             version = self.activeasset.devversions
@@ -634,6 +656,7 @@ class EXOpipeline(BASE_CLASS, UI_OBJECT):
         self.PROJECT.update()
 
     def publish_active_asset(self):
+        self.synchronise_database()
         if self.currentlistsection == "assets":
             if self.devtype == "dev":
                 self.publish_asset_dev()
@@ -688,16 +711,18 @@ class EXOpipeline(BASE_CLASS, UI_OBJECT):
         if not selected:
             raise RuntimeError("No item selected!")
 
+        self.synchronise_database()
+
         if self.confirmation_dialog("Weet je zeker dat je dit item wil verwijderen?",
                                     title="Delete confirmation"):
             if self.currentlistsection == "assets":
                 self.PROJECT.delete_asset(selected)
 
             if self.currentlistsection == "shots":
-                self.PROJECT.delete_asset(selected)
+                self.PROJECT.delete_shot(selected)
 
             if self.currentlistsection == "other":
-                self.PROJECT.delete_asset(selected)
+                self.PROJECT.delete_other(selected)
         self.update_list_content(self.currentlistsection)
 
     def version_text(self, number):

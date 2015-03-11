@@ -63,7 +63,7 @@ class Project(object):
         self.update()
 
     def delete_asset(self, assetname):
-        self.data["assets"].pop(assetname, None)
+        del self.data["assets"][assetname]
         icFU.move_folder(self.assetpath + "/" + assetname, self.trashpath)
         self.update()
 
@@ -73,7 +73,7 @@ class Project(object):
         self.update()
 
     def delete_shot(self, shotname):
-        self.data["shots"].pop(shotname, None)
+        del self.data["shots"][shotname]
         icFU.move_folder(self.shotpath + "/" + shotname, self.trashpath)
         self.update()
 
@@ -83,7 +83,7 @@ class Project(object):
         self.update()
 
     def delete_other(self, othername):
-        self.data["other"].pop(othername, None)
+        del self.data["other"][othername]
         icFU.move_folder(self.otherpath + "/" + othername, self.trashpath)
         self.update()
 
@@ -94,7 +94,7 @@ class Project(object):
         self.update()
 
     def delete_setdata(self, setname):
-        self.data["setdata"].pop(setname, None)
+        del self.data["setdata"][setname]
         self.update()
 
     def update(self):
